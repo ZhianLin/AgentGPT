@@ -35,20 +35,21 @@ class Settings(BaseSettings):
     workers_count: int = 1
 
     # Enable uvicorn reloading
-    reload: bool = False
+    reload: bool = True
 
     # Current environment
-    environment: str = "dev"
+    environment: str = "development"
 
     log_level: LogLevel = LogLevel.INFO
 
     # OpenAI
     openai_api_base: str = "https://api.openai.com/v1"
     openai_api_key: str = "<Should be updated via env>"
+    secondary_openai_api_key: Optional[str] = None
+
     replicate_api_key: Optional[str] = None
-    ff_mock_mode_enabled: bool = False  # Controls whether calls are mocked
-    serp_api_key: str = "<Should be updated via env>"
-    helicone_api_key: str = "<Should be updated via env>"
+    serp_api_key: Optional[str] = None
+
     # Frontend URL for CORS
     frontend_url: str = "http://localhost:3000"
 
@@ -61,11 +62,19 @@ class Settings(BaseSettings):
     db_echo: bool = False
     db_ca_path: str = "/etc/ssl/cert.pem"
 
+    # Variables for the vector db. We're currently using Weaviate
+    vector_db_url: str = "<Should be updated via env>"
+    vector_db_api_key: Optional[str] = None
+
     # Sentry's configuration.
     sentry_dsn: Optional[str] = None
     sentry_sample_rate: float = 1.0
 
     kafka_bootstrap_servers: List[str] = ["reworkd_platform-kafka:9092"]
+
+    # Application Settings
+    ff_mock_mode_enabled: bool = False  # Controls whether calls are mocked
+    max_loops: int = 25  # Maximum number of loops to run
 
     @property
     def db_url(self) -> URL:

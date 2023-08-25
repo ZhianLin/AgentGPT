@@ -24,11 +24,11 @@ const getEnvDefinition = (envValues, isDockerCompose, dbPort, platformUrl) => {
   return {
     "Deployment Environment": {
       NODE_ENV: "development",
+      NEXT_PUBLIC_VERCEL_ENV: "${NODE_ENV}",
     },
     NextJS: {
       NEXT_PUBLIC_BACKEND_URL: "http://localhost:8000",
-      NEXT_PUBLIC_FORCE_AUTH: false,
-      NEXT_PUBLIC_MAX_LOOPS: 25,
+      NEXT_PUBLIC_MAX_LOOPS: 100,
     },
     "Next Auth config": {
       NEXTAUTH_SECRET: generateAuthSecret(),
@@ -43,7 +43,7 @@ const getEnvDefinition = (envValues, isDockerCompose, dbPort, platformUrl) => {
       DISCORD_CLIENT_ID: "***",
     },
     Backend: {
-      REWORKD_PLATFORM_ENVIRONMENT: "development",
+      REWORKD_PLATFORM_ENVIRONMENT: "${NODE_ENV}",
       REWORKD_PLATFORM_FF_MOCK_MODE_ENABLED: false,
       REWORKD_PLATFORM_MAX_LOOPS: "${NEXT_PUBLIC_MAX_LOOPS}",
       REWORKD_PLATFORM_OPENAI_API_KEY:
@@ -121,27 +121,13 @@ export const testEnvFile = () => {
   const missingFromFile = envKeysFromDef.filter(
     (key) => !envKeysFromFile.includes(key)
   );
-  const missingFromDef = envKeysFromFile.filter(
-    (key) => !envKeysFromDef.includes(key)
-  );
 
-  if (missingFromFile.length > 0 || missingFromDef.length > 0) {
-    let errorMessage = "";
-    if (missingFromFile.length > 0) {
-      errorMessage += "\nYour ./next/.env is missing the following keys:\n";
-      missingFromFile.forEach((key) => {
-        errorMessage += chalk.whiteBright(`- ❌  ${key}\n`);
-      });
-      errorMessage += "\n";
-    }
-
-    if (missingFromDef.length > 0) {
-      errorMessage += "Your ./next/.env contains the following extra keys:\n";
-      missingFromDef.forEach((key) => {
-        errorMessage += chalk.whiteBright(`- ⚠️  ${key}\n`);
-      });
-      errorMessage += "\n";
-    }
+  if (missingFromFile.length > 0) {
+    let errorMessage = "\nYour ./next/.env is missing the following keys:\n";
+    missingFromFile.forEach((key) => {
+      errorMessage += chalk.whiteBright(`- ❌  ${key}\n`);
+    });
+    errorMessage += "\n";
 
     errorMessage += chalk.red(
       "We recommend deleting your .env file(s) and restarting this script."

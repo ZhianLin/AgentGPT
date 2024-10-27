@@ -5,12 +5,12 @@ from fastapi.responses import StreamingResponse as FastAPIStreamingResponse
 from pydantic import BaseModel
 
 from reworkd_platform.schemas.agent import (
-    AgentRun,
-    AgentTaskAnalyze,
-    AgentTaskExecute,
-    AgentTaskCreate,
-    AgentSummarize,
     AgentChat,
+    AgentRun,
+    AgentSummarize,
+    AgentTaskAnalyze,
+    AgentTaskCreate,
+    AgentTaskExecute,
     NewTasksResponse,
 )
 from reworkd_platform.web.api.agent.agent_service.agent_service import AgentService
@@ -64,7 +64,7 @@ async def execute_tasks(
     return await agent_service.execute_task_agent(
         goal=req_body.goal or "",
         task=req_body.task or "",
-        analysis=req_body.analysis or Analysis.get_default_analysis(),
+        analysis=req_body.analysis,
     )
 
 
@@ -104,7 +104,11 @@ async def summarize(
 async def chat(
     req_body: AgentChat = Depends(agent_chat_validator),
     agent_service: AgentService = Depends(
-        get_agent_service(validator=agent_chat_validator, streaming=True),
+        get_agent_service(
+            validator=agent_chat_validator,
+            streaming=True,
+            llm_model="gpt-3.5-turbo-16k",
+        ),
     ),
 ) -> FastAPIStreamingResponse:
     return await agent_service.chat(
